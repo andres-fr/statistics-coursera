@@ -13,11 +13,6 @@ editor_options:
 ---
 
 
-
-# WEEK 1
-
-
-
 ## Intro video
 
 > **STATISTICAL INFERENCE**: "Generating conclusions about a population from noisy data, where uncertainty must be accounted for". 

@@ -14,10 +14,6 @@ editor_options:
 
 
 
-# WEEK 1
-
-
-
 ## Introduction to variability:
 
 > **Variance**: $Var(X) = E[(X-\mu)^2] = E[X^2] - E[X]^2$

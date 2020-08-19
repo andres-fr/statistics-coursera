@@ -1,4 +1,4 @@
-# WEEK 1
+# WEEK 2
 
 | Please choose a lesson, or type 0 to return to course menu.
 
