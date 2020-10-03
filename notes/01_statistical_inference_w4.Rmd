@@ -420,3 +420,82 @@ Note:
 * This *naive* quantile interval can be biased. There are several methods to correct that. A recommended one is **Bias Corrected and Accelerated interval** (BCA Interval), which can be seen as a "quick little fix". R has a function for it.
 * Recommended reference: *An introduction to the Bootstrap*, Efron and Tibshirani.
 * Bootstrap has "lots of variations and intricacies when you try to apply it in settings like when you have time series. Or when your have a regression model or when you have longitudinal or multi level data". 
+
+
+
+
+
+
+---
+
+## Permutation Tests
+
+Observe the following dataset: each spray is a different pesticide, and *count* is the number of killed insects:
+
+```{r, fig.height=6, fig.width=8, echo=FALSE, fig.align='center'}
+data(InsectSprays)
+g = ggplot(InsectSprays, aes(spray, count, fill = spray))
+g = g + geom_boxplot()
+g
+```
+
+> The difference between B and C can be clearly seen, but a **permutation test** gives us a way to quantify it via p-values. That way we can perform a regular hypothesis test, like $H_0$: all sprays follow the same distribution. Permutation tests allow us to do formal inference based on an idea of exchangeability of group labels.
+
+Notes:
+
+* The permutation test for binary data is **Fisher's exact test**. The test for "rank sum" is the **Rank sum test**.
+
+* Permutation strategies work for regression as well (e.g. permuting a regressor of interest)
+
+* Permutation tests work well in multivariate settings
+
+
+#### Procedure:  
+
+1. For 2 groups and N groups per sample, gather data in a matrix in $\mathbb{R}^{N \times 2}$.
+2. Compute your desired statistic, e.g. mean difference, EV, T-statistic...
+3. Repeat many times: permute the 2 elements in each row, and compute the statistic between the 2 permuted groups
+4. The results of step 3 will yield a simulated distribution that assumes no difference between the 2 groups, i.e. it is our $H_0$ distribution.
+5. We can compute the p-value of our statistic from step 2 by checking its quantile on the distribution from step 4.
+
+
+#### Example:  
+
+Going back to the spray data, we will compute the difference in means between the 2 groups:
+
+
+```{r}
+subdata <- InsectSprays[InsectSprays$spray %in% c("B", "C"),]
+y <- subdata$count
+group <- as.character(subdata$spray)
+testStat <- function(w, g) mean(w[g == "B"]) - mean(w[g == "C"])
+observedStat <- testStat(y, group)
+permutations <- sapply(1 : 10000, function(i) testStat(y, sample(group)))
+observedStat
+mean(permutations > observedStat)
+```
+Note the 2 output numbers: the first one is the observed mean difference of 13.25, and the second one is the number of permutations that achieved a great difference.
+
+This means that the p-value for $H_0$ will be very close to zero, i.e. we can safely reject that both sprays come from the same distribution. Note that the p-value is greater than zero because there is at least one permutation that causes the difference of 13.25, that is the permutation originally seen in the dataset.
+
+
+The following plot depicts the $H_0$ distribution and the observed statistic as a vertical line:
+
+
+---
+## Histogram of permutations B v C
+```{r, echo= FALSE, fig.width=6, fig.height=6, fig.align='center'}
+g = ggplot(data.frame(permutations = permutations),
+           aes(permutations))
+g = g + geom_histogram(fill = "lightblue", color = "black", binwidth = 1)
+g = g + geom_vline(xintercept = observedStat, size = 2)
+g
+```
+
+
+
+
+
+
+
+
